@@ -12,6 +12,7 @@ export class UserController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: CreateUserDto })
   async register(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
+    await this.userService.createUser(createUserDto);
+    return { message: 'User created successfully', status: 'success' };
   }
 }

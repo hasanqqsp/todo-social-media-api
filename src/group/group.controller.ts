@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { CreateGroupDto } from 'src/dtos/create-group.dto';
@@ -20,6 +28,20 @@ import {
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
+  @ApiOperation({ summary: 'Get my group' })
+  @ApiResponse({
+    status: 200,
+    description: 'The group has been successfully retrieved.',
+  })
+  @Get('my')
+  async getMyGroup(@Req() req: { user: { id: number } }) {
+    return {
+      status: 'success',
+      message: 'Group retrieved successfully',
+      data: await this.groupService.findByUserId(req.user.id),
+    };
+  }
+
   @ApiOperation({ summary: 'Create a new group' })
   @ApiResponse({
     status: 201,
@@ -27,8 +49,21 @@ export class GroupController {
   })
   @ApiBody({ type: CreateGroupDto })
   @Post('')
-  createGroup(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.createGroup(createGroupDto.name);
+  async createGroup(
+    @Body() createGroupDto: CreateGroupDto,
+    @Req() req: { user: { id: number } },
+  ) {
+    const { id } = await this.groupService.createGroup(
+      createGroupDto.name,
+      req.user.id,
+    );
+    return {
+      status: 'success',
+      message: 'Group created successfully',
+      data: {
+        id,
+      },
+    };
   }
 
   @ApiOperation({ summary: 'Get a group by ID' })
@@ -42,8 +77,12 @@ export class GroupController {
     description: 'The ID of the group to retrieve',
   })
   @Get(':id')
-  getGroup(@Param('id') id: number) {
-    return this.groupService.findOne(id);
+  async getGroup(@Param('id') id: number) {
+    return {
+      status: 'success',
+      message: 'Group retrieved successfully',
+      data: await this.groupService.findOne(id),
+    };
   }
 
   @ApiOperation({ summary: 'Add a member to a group' })
@@ -60,7 +99,15 @@ export class GroupController {
     schema: { type: 'object', properties: { userId: { type: 'number' } } },
   })
   @Post(':id/members')
-  addMember(@Param('id') groupId: number, @Body('userId') userId: number) {
-    return this.groupService.addMember(groupId, userId);
+  async addMember(
+    @Param('id') groupId: number,
+    @Body('userId') userId: number,
+    @Req() req: { user: { id: number } },
+  ) {
+    await this.groupService.addMember(groupId, userId, req.user.id);
+    return {
+      status: 'success',
+      message: 'Member added successfully',
+    };
   }
 }

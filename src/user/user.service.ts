@@ -16,7 +16,16 @@ export class UserService {
   ) {}
   async createUser(createUserDto: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const existingUser = await this.userRepository.findOne({
+      where: [
+        { username: createUserDto.username },
+        { email: createUserDto.email },
+      ],
+    });
 
+    if (existingUser) {
+      throw new Error('Username or email already in use');
+    }
     const newGroup = this.groupRepository.create({
       name: `${createUserDto.fullName} Group`,
     });

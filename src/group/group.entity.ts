@@ -13,7 +13,7 @@ export class Group {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   @ManyToMany(() => User, (user) => user.groups)

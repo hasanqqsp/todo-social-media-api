@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -25,6 +26,8 @@ import { PostService } from './post.service';
 import { UpdatePostDto } from 'src/dtos/update-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { PostDto } from 'src/dtos/post.dto';
 
 @ApiTags('Posts')
 @ApiBearerAuth()
@@ -36,8 +39,16 @@ export class PostController {
   @Post()
   @ApiOperation({ summary: 'Buat postingan baru' })
   @ApiResponse({ status: 201, description: 'Postingan berhasil dibuat' })
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(createPostDto);
+  async create(
+    @Body() createPostDto: CreatePostDto,
+    @Req() req: { user: { id: number } },
+  ) {
+    const { id } = await this.postService.create(createPostDto, req.user.id);
+    return {
+      message: 'Postingan berhasil dibuat',
+      status: 'success',
+      data: { id },
+    };
   }
 
   @Get()
@@ -58,30 +69,52 @@ export class PostController {
     required: false,
     description: 'Filter berdasarkan status pembayaran (unpaid, pending, paid)',
   })
-  getAll(
+  @Serialize(PostDto)
+  async getAll(
+    @Req() req: { user: { id: number } },
     @Query('title') title?: string,
     @Query('status') status?: string,
     @Query('paymentStatus') paymentStatus?: string,
   ) {
-    return this.postService.findAll(title, status, paymentStatus);
+    return {
+      message: 'Postingan berhasil didapatkan',
+      status: 'success',
+      data: await this.postService.findAll(
+        title,
+        status,
+        paymentStatus,
+        req.user.id,
+      ),
+    };
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Ambil postingan berdasarkan ID' })
-  getOne(@Param('id') id: number) {
-    return this.postService.findOne(id);
+  @Serialize(PostDto)
+  async getOne(@Param('id') id: number, @Req() req: { user: { id: number } }) {
+    return {
+      data: await this.postService.findOne(id, req.user.id),
+      message: 'Postingan berhasil didapatkan',
+      status: 'success',
+    };
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Hapus postingan berdasarkan ID' })
-  delete(@Param('id') id: number) {
-    return this.postService.remove(id);
+  async delete(@Param('id') id: number, @Req() req: { user: { id: number } }) {
+    await this.postService.remove(id, req.user.id);
+    return { message: 'Postingan berhasil dihapus', status: 'success' };
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Update postingan berdasarkan ID' })
-  update(@Param('id') id: number, @Body() updatePostDto: UpdatePostDto) {
-    return this.postService.update(id, updatePostDto);
+  async update(
+    @Param('id') id: number,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() req: { user: { id: number } },
+  ) {
+    await this.postService.update(id, updatePostDto, req.user.id);
+    return { message: 'Postingan berhasil diupdate', status: 'success' };
   }
 
   @Post(':id/images')
@@ -102,8 +135,14 @@ export class PostController {
   async uploadImages(
     @Param('id') id: number,
     @UploadedFile() file: Express.Multer.File,
+    @Req() req: { user: { id: number } },
   ) {
     const imageUrl = `/uploads/${file.filename}`;
-    return this.postService.addImage(id, imageUrl);
+    await this.postService.addImage(id, imageUrl, req.user.id);
+    return {
+      message: 'Gambar berhasil diupload',
+      status: 'success',
+      data: { imagePath: imageUrl },
+    };
   }
 }

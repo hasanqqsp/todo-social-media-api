@@ -1,0 +1,429 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/posts": {
+      "post": {
+        "operationId": "PostController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePostDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Postingan berhasil dibuat" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Buat postingan baru",
+        "tags": ["Posts"]
+      },
+      "get": {
+        "operationId": "PostController_getAll",
+        "parameters": [
+          {
+            "name": "title",
+            "required": false,
+            "in": "query",
+            "description": "Cari berdasarkan judul",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter berdasarkan status (draft, scheduled, published, archived)",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "paymentStatus",
+            "required": false,
+            "in": "query",
+            "description": "Filter berdasarkan status pembayaran (unpaid, pending, paid)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Ambil semua postingan dengan filter",
+        "tags": ["Posts"]
+      }
+    },
+    "/posts/{id}": {
+      "get": {
+        "operationId": "PostController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Ambil postingan berdasarkan ID",
+        "tags": ["Posts"]
+      },
+      "delete": {
+        "operationId": "PostController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Hapus postingan berdasarkan ID",
+        "tags": ["Posts"]
+      },
+      "put": {
+        "operationId": "PostController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "number" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePostDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Update postingan berdasarkan ID",
+        "tags": ["Posts"]
+      }
+    },
+    "/posts/{id}/images": {
+      "post": {
+        "operationId": "PostController_uploadImages",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "number" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "summary": "Upload banyak gambar untuk postingan",
+        "tags": ["Posts"]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "UserController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateUserDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "summary": "Register a new user",
+        "tags": ["users"]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": { "example": { "accessToken": "string" } }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials" }
+        },
+        "summary": "User login",
+        "tags": ["auth"]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Get user profile",
+        "tags": ["auth"]
+      }
+    },
+    "/groups/my": {
+      "get": {
+        "operationId": "GroupController_getMyGroup",
+        "parameters": [],
+        "responses": {
+          "200": { "description": "The group has been successfully retrieved." }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Get my group",
+        "tags": ["groups"]
+      }
+    },
+    "/groups": {
+      "post": {
+        "operationId": "GroupController_createGroup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateGroupDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "The group has been successfully created." }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Create a new group",
+        "tags": ["groups"]
+      }
+    },
+    "/groups/{id}": {
+      "get": {
+        "operationId": "GroupController_getGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the group to retrieve",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "The group has been successfully retrieved." }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Get a group by ID",
+        "tags": ["groups"]
+      }
+    },
+    "/groups/{id}/members": {
+      "post": {
+        "operationId": "GroupController_addMember",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the group to which the member will be added",
+            "schema": { "type": "number" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "userId": { "type": "number" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The member has been successfully added to the group."
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "summary": "Add a member to a group",
+        "tags": ["groups"]
+      }
+    }
+  },
+  "info": {
+    "title": "Social Media Post Todo API",
+    "description": "API untuk mengelola postingan sosial media",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": { "scheme": "bearer", "bearerFormat": "JWT", "type": "http" }
+    },
+    "schemas": {
+      "CreatePostDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "example": "Promo Akhir Tahun" },
+          "content": {
+            "type": "string",
+            "example": "Diskon besar-besaran untuk akhir tahun!"
+          },
+          "status": {
+            "type": "string",
+            "example": "scheduled",
+            "enum": ["draft", "scheduled", "published", "archived"],
+            "default": "draft"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "example": "2025-03-01T10:00:00Z"
+          },
+          "platforms": {
+            "example": ["Facebook", "Instagram"],
+            "type": "array",
+            "items": { "type": "array" }
+          },
+          "client": { "type": "string", "example": "Client XYZ" },
+          "paymentStatus": {
+            "type": "string",
+            "example": "paid",
+            "enum": ["unpaid", "pending", "paid"],
+            "default": "unpaid"
+          },
+          "groupId": { "type": "number", "example": 123 }
+        },
+        "required": [
+          "title",
+          "content",
+          "status",
+          "platforms",
+          "client",
+          "paymentStatus",
+          "groupId"
+        ]
+      },
+      "UpdatePostDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "example": "updated title" },
+          "content": { "type": "string", "example": "updated content" },
+          "status": {
+            "type": "string",
+            "example": "published",
+            "enum": ["draft", "scheduled", "published", "archived"],
+            "default": "draft"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "example": "2025-04-10T12:00:00Z"
+          },
+          "platforms": {
+            "example": ["Instagram"],
+            "type": "array",
+            "items": { "type": "array" }
+          },
+          "client": { "type": "string", "example": "Client ABC" },
+          "paymentStatus": {
+            "type": "string",
+            "example": "paid",
+            "enum": ["unpaid", "pending", "paid"],
+            "default": "unpaid"
+          },
+          "groupId": { "type": "number", "example": 123 }
+        }
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username of the user",
+            "example": "john_doe"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the user",
+            "minLength": 6,
+            "example": "password123"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "john.doe@example.com"
+          }
+        },
+        "required": ["username", "password", "fullName", "email"]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username of the user",
+            "example": "john_doe"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the user",
+            "example": "password123"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "User": { "type": "object", "properties": {} },
+      "CreateGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the group",
+            "example": "Developers Group"
+          }
+        },
+        "required": ["name"]
+      }
+    }
+  }
+}

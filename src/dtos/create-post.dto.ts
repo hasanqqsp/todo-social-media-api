@@ -5,7 +5,21 @@ import {
   IsOptional,
   IsDateString,
   IsArray,
+  IsNumber,
 } from 'class-validator';
+
+enum PostStatus {
+  DRAFT = 'draft',
+  SCHEDULED = 'scheduled',
+  PUBLISHED = 'published',
+  ARCHIVED = 'archived',
+}
+
+enum paymentStatus {
+  UNPAID = 'unpaid',
+  PENDING = 'pending',
+  PAID = 'paid',
+}
 
 export class CreatePostDto {
   @ApiProperty({ example: 'Promo Akhir Tahun' })
@@ -18,10 +32,11 @@ export class CreatePostDto {
 
   @ApiProperty({
     example: 'scheduled',
-    enum: ['draft', 'scheduled', 'published', 'archived'],
+    enum: PostStatus,
+    default: PostStatus.DRAFT,
   })
-  @IsEnum(['draft', 'scheduled', 'published', 'archived'])
-  status: string;
+  @IsEnum(PostStatus)
+  status: string = PostStatus.DRAFT;
 
   @ApiProperty({ example: '2025-03-01T10:00:00Z', required: false })
   @IsOptional()
@@ -31,12 +46,9 @@ export class CreatePostDto {
   @ApiProperty({
     example: ['Facebook', 'Instagram'],
     isArray: true,
-    enum: ['Facebook', 'Instagram', 'Twitter', 'LinkedIn', 'TikTok'],
   })
   @IsArray()
-  @IsEnum(['Facebook', 'Instagram', 'Twitter', 'LinkedIn', 'TikTok'], {
-    each: true,
-  })
+  @IsString({ each: true })
   platforms: string[];
 
   @ApiProperty({ example: 'Client XYZ' })
@@ -45,8 +57,13 @@ export class CreatePostDto {
 
   @ApiProperty({
     example: 'paid',
-    enum: ['unpaid', 'pending', 'paid'],
+    enum: paymentStatus,
+    default: paymentStatus.UNPAID,
   })
-  @IsEnum(['unpaid', 'pending', 'paid'])
-  paymentStatus: string;
+  @IsEnum(paymentStatus)
+  paymentStatus: string = paymentStatus.UNPAID;
+
+  @ApiProperty({ example: 123 })
+  @IsNumber()
+  groupId: number;
 }
