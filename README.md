@@ -2,6 +2,14 @@
 
 🚀 **REST API untuk Social Media Manager** yang memungkinkan pengelolaan postingan, media, serta otorisasi berbasis grup.
 
+## Deployment
+
+- API tersedia secara online pada [https://api.todo.h14.my.id/]
+- Dokumentasi swagger tersedia di [https://api.todo.h14.my.id/api/docs]
+- User dan password untuk Testing :
+  - testuser1 : password123
+  - testuser2 : password123
+
 ## ✨ Fitur Utama
 
 - **Manajemen Postingan:** CRUD postingan dengan status, jadwal posting, dan status pembayaran.
