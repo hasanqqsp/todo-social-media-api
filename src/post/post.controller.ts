@@ -7,14 +7,29 @@ import {
   Delete,
   Put,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiConsumes,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CreatePostDto } from '../dtos/create-post.dto';
 import { PostService } from './post.service';
 import { UpdatePostDto } from 'src/dtos/update-post.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Posts')
+@ApiBearerAuth()
 @Controller('posts')
+@UseGuards(AuthGuard('jwt'))
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
@@ -67,5 +82,28 @@ export class PostController {
   @ApiOperation({ summary: 'Update postingan berdasarkan ID' })
   update(@Param('id') id: number, @Body() updatePostDto: UpdatePostDto) {
     return this.postService.update(id, updatePostDto);
+  }
+
+  @Post(':id/images')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({ summary: 'Upload banyak gambar untuk postingan' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async uploadImages(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const imageUrl = `/uploads/${file.filename}`;
+    return this.postService.addImage(id, imageUrl);
   }
 }
